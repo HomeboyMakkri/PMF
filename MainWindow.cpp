@@ -8,13 +8,20 @@
 #include <QFormLayout>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), serialReader(new SerialPortReader(this)), isConnected(false)
+    : QMainWindow(parent),
+      serialReader(new SerialPortReader(this)),
+      isConnected(false)
 {
+    // Сначала создаём все виджеты
+    chartView = new QChartView();  // Без parent пока что
+    plotter = new FrequencyPlotter(chartView, this);
+
+    // Настраиваем соединения
     connect(serialReader, &SerialPortReader::newDataReceived, this, &MainWindow::onNewData);
     connect(serialReader, &SerialPortReader::errorOccurred, this, &MainWindow::onError);
 
+    // Затем настраиваем UI
     setupUI();
-    setupChart();
 }
 
 void MainWindow::setupUI()
@@ -68,11 +75,11 @@ void MainWindow::setupUI()
 
     // Логотип ИТЭЛМа
     QLabel *logoLabel = new QLabel(this);
-    QPixmap logoPixmap(":/Resources/images/itelma_logo.png");
+    QPixmap logoPixmap("${CMAKE_CURRENT_SOURCE_DIR}/Resources/images/itelma_logo.png");
     if(!logoPixmap.isNull()) {
         logoLabel->setPixmap(logoPixmap.scaledToHeight(60, Qt::SmoothTransformation));
     } else {
-        logoLabel->setText("ИТЭЛМА");
+        logoLabel->setText("Итэлма");
         logoLabel->setStyleSheet("QLabel { font: bold 20px; color: #0055A0; }");
     }
     logoLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -82,39 +89,39 @@ void MainWindow::setupUI()
     headerLayout->addWidget(logoLabel, 0, Qt::AlignRight);
     headerLayout->setStretch(0, 1);
 
-    // 2. График
-    chartView = new QChartView(centralWidget);
+    // 2. График (теперь parent устанавливается здесь)
+    chartView->setParent(centralWidget);  // Устанавливаем parent
     chartView->setRenderHint(QPainter::Antialiasing);
 
     // 3. Общая компоновка
     mainLayout->addLayout(headerLayout);
-    mainLayout->addWidget(chartView, 1);
+    mainLayout->addWidget(chartView, 1);  // Добавляем в layout
 
     setCentralWidget(centralWidget);
     resize(1100, 650);
 }
 
-void MainWindow::setupChart()
-{
-    chart = new QChart();
-    series = new QLineSeries();
-    chart->addSeries(series);
+//void MainWindow::setupChart()
+//{
+//    chart = new QChart();
+//    series = new QLineSeries();
+//    chart->addSeries(series);
 
-    axisX = new QValueAxis();
-    axisX->setTitleText("Время (сек)");
-    axisX->setRange(0, 10);
-    chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
+//    axisX = new QValueAxis();
+//    axisX->setTitleText("Время (сек)");
+//    axisX->setRange(0, 10);
+//    chart->addAxis(axisX, Qt::AlignBottom);
+//    series->attachAxis(axisX);
 
-    axisY = new QValueAxis();
-    axisY->setTitleText("Частота (кГц)");
-    axisY->setRange(500, 1000);
-    chart->addAxis(axisY, Qt::AlignLeft);
-    series->attachAxis(axisY);
+//    axisY = new QValueAxis();
+//    axisY->setTitleText("Частота (кГц)");
+//    axisY->setRange(500, 1000);
+//    chart->addAxis(axisY, Qt::AlignLeft);
+//    series->attachAxis(axisY);
 
-    chart->setTitle("Мониторинг PFM сигнала (500-1000 кГц)");
-    chartView->setChart(chart);
-}
+//    chart->setTitle("Мониторинг PFM сигнала (500-1000 кГц)");
+//    chartView->setChart(chart);
+//}
 
 void MainWindow::refreshPortList()
 
@@ -156,19 +163,7 @@ void MainWindow::onConnectClicked()
 
 void MainWindow::onNewData(double frequency)
 {
-    // Добавляем новую точку данных
-    dataPoints.append(QPointF(timeCounter++ / 10.0, frequency));
-
-    // Удаляем старые точки
-    if (dataPoints.size() > MAX_POINTS) {
-        dataPoints.removeFirst();
-    }
-
-    // Обновляем график
-    series->replace(dataPoints);
-
-    // Автомасштабирование оси X
-    axisX->setRange(dataPoints.first().x(), dataPoints.last().x());
+   plotter->addDataPoint(timeCounter++ / 10.0, frequency);
 }
 
 void MainWindow::onError(const QString &error)

@@ -18,6 +18,12 @@ set(PROJECT_SOURCES
         MainWindow.cpp
         MainWindow.h
         MainWindow.ui
+        FrequencyPlotter.cpp
+        FrequencyPlotter.h
+)
+
+set(RESOURCES
+    file(COPY Resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
