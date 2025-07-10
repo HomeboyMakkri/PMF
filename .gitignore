@@ -1,4 +1,5 @@
-# Qt specific
+# Qt / CMake ignore
+CMakeLists.txt.user
 *.o
 *.a
 *.so
