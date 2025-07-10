@@ -20,6 +20,8 @@ set(PROJECT_SOURCES
         MainWindow.ui
         FrequencyPlotter.cpp
         FrequencyPlotter.h
+        OscillocopePlotter.h
+        OscillocsopePlotter.cpp
 )
 
 set(RESOURCES

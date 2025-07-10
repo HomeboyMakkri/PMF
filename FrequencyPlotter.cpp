@@ -34,3 +34,8 @@ void FrequencyPlotter::addDataPoint(double x, double y)
     series->replace(dataPoints);
     axisX->setRange(dataPoints.first().x(), dataPoints.last().x());
 }
+
+void FrequencyPlotter::clear()
+{
+    series->clear();
+}

@@ -5,6 +5,7 @@
 #include <QtCharts>
 #include "SerialPortReader.h"
 #include "FrequencyPlotter.h"
+#include "OscillocopePlotter.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -22,21 +23,22 @@ private slots:
     void onError(const QString &error);
     void updateConnectionStatus(bool connected);
     void refreshPortList();
+    void onGraphTypeChanged(int index);
 
 private:
-    QChartView *chartView;
-    FrequencyPlotter *plotter;
-    void setupUI();
-    //void setupChart();
 
+    enum GraphType { FrequencyGraph, OscilloscopeGraph };
+    QComboBox *graphTypeCombo;  // Выпадающий список для выбора типа графика
+    FrequencyPlotter *frequencyPlotter;
+    OscilloscopePlotter *oscilloscopePlotter;
+    QChartView *chartView;
+
+    void setupFrequencyPlotter();
+    void setupOscilloscopePlotter();
+
+    void setupUI();
     SerialPortReader *serialReader;
-    //QChart *chart;
-    //QLineSeries *series;
-    //QValueAxis *axisX;
-    //QValueAxis *axisY;
-    //QVector<QPointF> dataPoints;
     int timeCounter = 0;
-    //const int MAX_POINTS = 100;
 
     // Состояние подключения
     bool isConnected;

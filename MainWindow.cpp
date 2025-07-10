@@ -9,17 +9,17 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
+      frequencyPlotter(nullptr),
+      oscilloscopePlotter(nullptr),
+      chartView(new QChartView(this)),
       serialReader(new SerialPortReader(this)),
       isConnected(false)
 {
-    // Сначала создаём все виджеты
-    chartView = new QChartView();  // Без parent пока что
-    plotter = new FrequencyPlotter(chartView, this);
 
     // Настраиваем соединения
     connect(serialReader, &SerialPortReader::newDataReceived, this, &MainWindow::onNewData);
     connect(serialReader, &SerialPortReader::errorOccurred, this, &MainWindow::onError);
-
+    setupFrequencyPlotter();
     // Затем настраиваем UI
     setupUI();
 }
@@ -53,25 +53,39 @@ void MainWindow::setupUI()
     connectButton->setFixedWidth(120);
     connect(connectButton, &QPushButton::clicked, this, &MainWindow::onConnectClicked);
 
-    // Кнопка обновления портов (теперь в одной строке с "Порт:")
+    // Кнопка обновления портов
     QPushButton *refreshBtn = new QPushButton("⟳", controlGroup);
-    refreshBtn->setFixedSize(25, 25); // Квадратная кнопка
+    refreshBtn->setFixedSize(25, 25);
     refreshBtn->setToolTip("Обновить список портов");
     connect(refreshBtn, &QPushButton::clicked, this, &MainWindow::refreshPortList);
 
-    // Индикатор состояния
+    graphTypeCombo = new QComboBox(controlGroup);
+    graphTypeCombo->addItem("Частота/Время");
+    graphTypeCombo->addItem("Осциллограф");
+    graphTypeCombo->setCurrentIndex(FrequencyGraph);
+    connect(graphTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+           this, &MainWindow::onGraphTypeChanged);
+
+    // === Новый layout для кнопки и статуса под ней ===
+    QVBoxLayout *buttonStatusLayout = new QVBoxLayout();
+    buttonStatusLayout->addWidget(connectButton);
     statusLabel = new QLabel("Статус: не подключено", controlGroup);
     statusLabel->setStyleSheet("QLabel { color: #666; font-style: italic; }");
     statusLabel->setAlignment(Qt::AlignCenter);
+    buttonStatusLayout->addWidget(statusLabel);
+    buttonStatusLayout->addStretch(); // Для выравнивания сверху
 
-    // Добавление элементов в сетку (обновлённая версия)
+    // Добавление элементов в сетку
     controlLayout->addWidget(refreshBtn, 0, 0); // Кнопка обновления
     controlLayout->addWidget(new QLabel("Порт:"), 0, 1, Qt::AlignRight);
     controlLayout->addWidget(portCombo, 0, 2);
     controlLayout->addWidget(new QLabel("Скорость:"), 1, 1, Qt::AlignRight);
     controlLayout->addWidget(baudSpin, 1, 2);
-    controlLayout->addWidget(connectButton, 0, 3, 2, 1, Qt::AlignCenter);
-    controlLayout->addWidget(statusLabel, 2, 0, 1, 4); // Растягиваем на все колонки
+    controlLayout->addWidget(graphTypeCombo, 2, 2);
+    controlLayout->addWidget(new QLabel("Тип графика:"), 2, 1, Qt::AlignRight);
+
+    // === Заменяем объединение ячеек и убираем statusLabel из grid ===
+    controlLayout->addLayout(buttonStatusLayout, 0, 3, 3, 1, Qt::AlignTop);
 
     // Логотип ИТЭЛМа
     QLabel *logoLabel = new QLabel(this);
@@ -101,27 +115,54 @@ void MainWindow::setupUI()
     resize(1100, 650);
 }
 
-//void MainWindow::setupChart()
-//{
-//    chart = new QChart();
-//    series = new QLineSeries();
-//    chart->addSeries(series);
+void MainWindow::setupFrequencyPlotter()
+{
+    if (oscilloscopePlotter) {
+        oscilloscopePlotter->clear();
+        delete oscilloscopePlotter;
+        oscilloscopePlotter = nullptr;
+    }
 
-//    axisX = new QValueAxis();
-//    axisX->setTitleText("Время (сек)");
-//    axisX->setRange(0, 10);
-//    chart->addAxis(axisX, Qt::AlignBottom);
-//    series->attachAxis(axisX);
+    if (!frequencyPlotter) {
+        frequencyPlotter = new FrequencyPlotter(chartView, this);
+    }
+}
 
-//    axisY = new QValueAxis();
-//    axisY->setTitleText("Частота (кГц)");
-//    axisY->setRange(500, 1000);
-//    chart->addAxis(axisY, Qt::AlignLeft);
-//    series->attachAxis(axisY);
+void MainWindow::setupOscilloscopePlotter()
+{
+    if (frequencyPlotter) {
+        frequencyPlotter->clear();
+        delete frequencyPlotter;
+        frequencyPlotter = nullptr;
+    }
 
-//    chart->setTitle("Мониторинг PFM сигнала (500-1000 кГц)");
-//    chartView->setChart(chart);
-//}
+    if (!oscilloscopePlotter) {
+        oscilloscopePlotter = new OscilloscopePlotter(chartView, this);
+    }
+}
+
+void MainWindow::onGraphTypeChanged(int index)
+{
+    switch(index) {
+    case FrequencyGraph:
+        setupFrequencyPlotter();
+        break;
+    case OscilloscopeGraph:
+        setupOscilloscopePlotter();
+        break;
+    }
+}
+
+void MainWindow::onNewData(double frequency)
+{
+    const double currentTime = timeCounter++ / 10.0;
+
+    if(graphTypeCombo->currentIndex() == FrequencyGraph) {
+        frequencyPlotter->addDataPoint(currentTime, frequency);
+    } else {
+        oscilloscopePlotter->addPulse(currentTime, frequency);
+    }
+}
 
 void MainWindow::refreshPortList()
 
@@ -160,12 +201,6 @@ void MainWindow::onConnectClicked()
     }
 }
 
-
-void MainWindow::onNewData(double frequency)
-{
-   plotter->addDataPoint(timeCounter++ / 10.0, frequency);
-}
-
 void MainWindow::onError(const QString &error)
 {
     QMessageBox::critical(this, "Ошибка", error);
@@ -195,5 +230,7 @@ void MainWindow::updateConnectionStatus(bool connected)
         baudSpin->setEnabled(true);
     }
 }
+
+
 
 
