@@ -1,0 +1,89 @@
+{
+	"cmake" : 
+	{
+		"generator" : 
+		{
+			"multiConfig" : false,
+			"name" : "MinGW Makefiles"
+		},
+		"paths" : 
+		{
+			"cmake" : "C:/Users/listk/Downloads/cmake-4.0.3-windows-x86_64/bin/cmake.exe",
+			"cpack" : "C:/Users/listk/Downloads/cmake-4.0.3-windows-x86_64/bin/cpack.exe",
+			"ctest" : "C:/Users/listk/Downloads/cmake-4.0.3-windows-x86_64/bin/ctest.exe",
+			"root" : "C:/Users/listk/Downloads/cmake-4.0.3-windows-x86_64/share/cmake-4.0"
+		},
+		"version" : 
+		{
+			"isDirty" : false,
+			"major" : 4,
+			"minor" : 0,
+			"patch" : 3,
+			"string" : "4.0.3",
+			"suffix" : ""
+		}
+	},
+	"objects" : 
+	[
+		{
+			"jsonFile" : "codemodel-v2-e7bfcccedfcc9106fce9.json",
+			"kind" : "codemodel",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 8
+			}
+		},
+		{
+			"jsonFile" : "cache-v2-f7bcd80e92895c9b9447.json",
+			"kind" : "cache",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 0
+			}
+		},
+		{
+			"jsonFile" : "cmakeFiles-v1-256a5050b3246ca7c9e1.json",
+			"kind" : "cmakeFiles",
+			"version" : 
+			{
+				"major" : 1,
+				"minor" : 1
+			}
+		}
+	],
+	"reply" : 
+	{
+		"cache-v2" : 
+		{
+			"jsonFile" : "cache-v2-f7bcd80e92895c9b9447.json",
+			"kind" : "cache",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 0
+			}
+		},
+		"cmakeFiles-v1" : 
+		{
+			"jsonFile" : "cmakeFiles-v1-256a5050b3246ca7c9e1.json",
+			"kind" : "cmakeFiles",
+			"version" : 
+			{
+				"major" : 1,
+				"minor" : 1
+			}
+		},
+		"codemodel-v2" : 
+		{
+			"jsonFile" : "codemodel-v2-e7bfcccedfcc9106fce9.json",
+			"kind" : "codemodel",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 8
+			}
+		}
+	}
+}

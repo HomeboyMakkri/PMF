@@ -1,0 +1,8 @@
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/PMF.dir
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/install.dir
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
+D:/QT/QtProjects/PMF/build/Desktop_Qt_5_14_2_MinGW_64_bit-Debug/CMakeFiles/PMF_autogen.dir

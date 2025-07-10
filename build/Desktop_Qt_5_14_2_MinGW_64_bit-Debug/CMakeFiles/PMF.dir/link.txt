@@ -1,0 +1,3 @@
+C:\Users\listk\Downloads\cmake-4.0.3-windows-x86_64\bin\cmake.exe -E rm -f CMakeFiles\PMF.dir/objects.a
+D:\QT\Tools\mingw730_64\bin\ar.exe qc CMakeFiles\PMF.dir/objects.a @CMakeFiles\PMF.dir\objects1.rsp
+D:\QT\Tools\mingw730_64\bin\g++.exe -mwindows -Wl,--whole-archive CMakeFiles\PMF.dir/objects.a -Wl,--no-whole-archive -o PMF.exe -Wl,--out-implib,libPMF.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\PMF.dir\linkLibs.rsp
