@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QFormLayout>
+#include "DataStorage.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -125,6 +126,7 @@ void MainWindow::setupFrequencyPlotter()
 
     if (!frequencyPlotter) {
         frequencyPlotter = new FrequencyPlotter(chartView, this);
+        frequencyPlotter->updatePlot();
     }
 }
 
@@ -138,6 +140,7 @@ void MainWindow::setupOscilloscopePlotter()
 
     if (!oscilloscopePlotter) {
         oscilloscopePlotter = new OscilloscopePlotter(chartView, this);
+        oscilloscopePlotter->updatePlot();
     }
 }
 
@@ -155,7 +158,7 @@ void MainWindow::onGraphTypeChanged(int index)
 
 void MainWindow::onNewData(double frequency)
 {
-    const double currentTime = timeCounter++ / 10.0;
+    double currentTime = DataStorage::instance().getCurrentTimeSeconds();
 
     if(graphTypeCombo->currentIndex() == FrequencyGraph) {
         frequencyPlotter->addDataPoint(currentTime, frequency);
@@ -165,7 +168,6 @@ void MainWindow::onNewData(double frequency)
 }
 
 void MainWindow::refreshPortList()
-
 {
     portCombo->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
@@ -186,6 +188,7 @@ void MainWindow::onConnectClicked()
     if (!isConnected) {
         // Попытка подключения
         if (serialReader->connectToPort(currentPortName, baudRate)) {
+            DataStorage::instance().startTimer();
             qDebug() << "Successfully connected to" << currentPortName << "at" << baudRate << "baud";
             isConnected = true;
             updateConnectionStatus(true);
@@ -195,6 +198,8 @@ void MainWindow::onConnectClicked()
     } else {
         // Процесс отключения
         serialReader->disconnectPort();
+        DataStorage::instance().clear();
+        DataStorage::instance().stopTimer();
         qDebug() << "Disconnected from" << currentPortName;
         isConnected = false;
         updateConnectionStatus(false);

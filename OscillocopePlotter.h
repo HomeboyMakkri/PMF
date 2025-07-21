@@ -11,6 +11,7 @@ public:
     explicit OscilloscopePlotter(QChartView *chartView, QObject *parent = nullptr);
     void addPulse(double time, double frequency);
     void clear();
+    void updatePlot();
 
 private:
     QChart *chart;

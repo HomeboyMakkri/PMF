@@ -10,6 +10,7 @@ public:
     explicit FrequencyPlotter(QChartView *chartView, QObject *parent = nullptr);
     void addDataPoint(double x, double y);
     void clear();
+    void updatePlot();
 
 private:
     QChart *chart;
@@ -18,6 +19,7 @@ private:
     QValueAxis *axisY;
     const int MAX_POINTS = 100;
     QList<QPointF> dataPoints;
+
 };
 
 #endif // FREQUENCYPLOTTER_H

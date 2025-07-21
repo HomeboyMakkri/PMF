@@ -22,6 +22,8 @@ set(PROJECT_SOURCES
         FrequencyPlotter.h
         OscillocopePlotter.h
         OscillocsopePlotter.cpp
+        DataStorage.cpp
+        DataStorage.h
 )
 
 set(RESOURCES

@@ -53,12 +53,12 @@ void SerialPortReader::handleReadyRead()
             continue;
         }
 
-        if (frequency >= 500000 && frequency <= 1000000) {
+        if (frequency >= 50 && frequency <= 500000) {
             frequency /= 1000; // Конвертируем в кГц
             qDebug() << "Valid frequency:" << frequency << "kHz";
             emit newDataReceived(frequency);
         } else {
-            qDebug() << "Frequency out of range (500000-1000000 Hz):" << frequency;
+            qDebug() << "Frequency out of range (50-500000 Hz):" << frequency;
         }
     }
 }
