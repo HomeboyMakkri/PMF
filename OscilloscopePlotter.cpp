@@ -8,7 +8,7 @@ OscilloscopePlotter::OscilloscopePlotter(QChartView *chartView, QObject *parent)
     chart = new QChart();
     axisX = new QValueAxis();
     axisX->setTitleText("Время, мс");
-    axisX->setRange(0, 10);
+    axisX->setRange(0, 5);
     chart->addAxis(axisX, Qt::AlignBottom);
 
     axisY = new QValueAxis();
@@ -33,15 +33,24 @@ OscilloscopePlotter::OscilloscopePlotter(QChartView *chartView, QObject *parent)
 
 void OscilloscopePlotter::addPulse(int sensorId, double time, double frequency) {
     if (seriesMap.contains(sensorId) && visibleSensors.contains(sensorId)) {
-        if (frequency > 0 && time >= 0) { // Проверка на корректные значения
-            double period = 1.0 / (frequency * 1000);
-            double pulseWidth = period * 0.8;
+        if (frequency > 0 && time >= 0) {
+            // frequency в кГц, преобразуем в Гц для расчета периода
+            double period_ms = 1.0 / (frequency * 1000.0) * 1000.0; // период в мс
+            double pulseWidth = period_ms * 0.8; // ширина импульса 80% периода
 
             QLineSeries* series = seriesMap[sensorId];
+
+            // Добавляем точки импульса
             series->append(time, 0);
             series->append(time, 3.3);
             series->append(time + pulseWidth, 3.3);
             series->append(time + pulseWidth, 0);
+
+            // Ограничение количества точек (например, последние 1000 точек)
+            const int MAX_POINTS = 1000;
+            if (series->count() > MAX_POINTS) {
+                series->removePoints(0, series->count() - MAX_POINTS);
+            }
         }
     }
 }
@@ -53,16 +62,23 @@ void OscilloscopePlotter::clear() {
 }
 
 void OscilloscopePlotter::updatePlot() {
-    // Автомасштабирование по времени
-    double minTime = 0, maxTime = 10;
+    double minTime = 0, maxTime = 5; // Было 10, стало 5
+    bool hasData = false;
+
     for (auto sensorId : visibleSensors) {
         const auto& data = DataStorage::instance().getFrequencyData(sensorId);
         if (!data.isEmpty()) {
+            hasData = true;
             maxTime = qMax(maxTime, data.last().x());
-            minTime = qMax(0.0, maxTime - 10.0);
+            minTime = qMax(0.0, maxTime - 5.0); // Было 10.0, стало 5.0
         }
     }
-    axisX->setRange(minTime, maxTime);
+
+    if (hasData) {
+        axisX->setRange(minTime, maxTime);
+    } else {
+        axisX->setRange(0, 5); // Было 10, стало 5
+    }
 }
 
 void OscilloscopePlotter::setVisibleSensors(const QSet<int>& sensors) {

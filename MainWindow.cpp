@@ -215,6 +215,7 @@ void MainWindow::onNewData(int sensorId, double frequency) {
         frequencyPlotter->addDataPoint(sensorId, currentTime, frequency);
     } else if (oscilloscopePlotter) {
         oscilloscopePlotter->addPulse(sensorId, currentTime, frequency);
+        oscilloscopePlotter->updatePlot(); // Добавляем принудительное обновление графика
     }
 }
 
@@ -239,10 +240,16 @@ void MainWindow::onConnectClicked()
     if (!isConnected) {
         // Попытка подключения
         if (serialReader->connectToPort(currentPortName, baudRate)) {
+            DataStorage::instance().clear(); // Очищаем хранилище при новом подключении
             DataStorage::instance().startTimer();
             qDebug() << "Successfully connected to" << currentPortName << "at" << baudRate << "baud";
             isConnected = true;
             updateConnectionStatus(true);
+
+            // Очищаем графики при новом подключении
+            if (frequencyPlotter) frequencyPlotter->clear();
+            if (oscilloscopePlotter) oscilloscopePlotter->clear();
+
         } else {
             qDebug() << "Failed to connect to" << currentPortName;
         }
@@ -254,6 +261,10 @@ void MainWindow::onConnectClicked()
         qDebug() << "Disconnected from" << currentPortName;
         isConnected = false;
         updateConnectionStatus(false);
+
+        // Очищаем графики при отключении
+        if (frequencyPlotter) frequencyPlotter->clear();
+        if (oscilloscopePlotter) oscilloscopePlotter->clear();
     }
 }
 
