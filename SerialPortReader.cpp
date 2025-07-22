@@ -32,33 +32,36 @@ void SerialPortReader::disconnectPort()
     }
 }
 
-void SerialPortReader::handleReadyRead()
-{
+void SerialPortReader::handleReadyRead() {
     buffer += serialPort->readAll();
-    qDebug() << "Raw input:" << buffer;
 
     int pos;
     while ((pos = buffer.indexOf('\n')) != -1) {
         QString line = buffer.left(pos).trimmed();
         buffer = buffer.mid(pos + 1);
 
-        qDebug() << "Processing line:" << line;
+        // Обработка строки вида "sensorX:значение"
+        QStringList parts = line.split(':');
+        if (parts.size() == 2) {
+            QString sensorStr = parts[0].trimmed();
+            QString valueStr = parts[1].trimmed();
 
-        bool ok;
-        double frequency = line.toDouble(&ok);
+            if (sensorStr.startsWith("sensor") && sensorStr.length() > 6) {
+                bool ok;
+                int sensorId = sensorStr.mid(6).toInt(&ok);
 
-        // 5. Проверяем валидность данных
-        if (!ok) {
-            qDebug() << "Invalid number format:" << line;
-            continue;
-        }
+                if (ok && sensorId >= 1 && sensorId <= 8) {
+                    double frequency = valueStr.toDouble(&ok);
 
-        if (frequency >= 50 && frequency <= 500000) {
-            frequency /= 1000; // Конвертируем в кГц
-            qDebug() << "Valid frequency:" << frequency << "kHz";
-            emit newDataReceived(frequency);
-        } else {
-            qDebug() << "Frequency out of range (50-500000 Hz):" << frequency;
+                    if (ok && frequency >= 50 && frequency <= 500000) {
+                        frequency /= 1000; // Конвертируем в кГц
+                        qDebug() << "Converted to kHz:" << frequency << "kHz";
+                        if (frequency > 0) { // Дополнительная проверка
+                            emit newDataReceived(sensorId, frequency);
+                        }
+                    }
+                }
+            }
         }
     }
 }

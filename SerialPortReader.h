@@ -21,7 +21,7 @@ public:
     void disconnectPort();
 
 signals:
-    void newDataReceived(double frequency);
+    void newDataReceived(int sensorId, double frequency);
     void errorOccurred(const QString &error);
     void disconnected();
 

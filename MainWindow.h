@@ -5,7 +5,7 @@
 #include <QtCharts>
 #include "SerialPortReader.h"
 #include "FrequencyPlotter.h"
-#include "OscillocopePlotter.h"
+#include "OscilloscopePlotter.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -19,7 +19,7 @@ public:
 
 private slots:
     void onConnectClicked();
-    void onNewData(double frequency);
+    void onNewData(int sensorId, double frequency);
     void onError(const QString &error);
     void updateConnectionStatus(bool connected);
     void refreshPortList();
@@ -50,5 +50,8 @@ private:
     QComboBox *portCombo;
     QSpinBox *baudSpin;
 
+    QList<QCheckBox*> sensorCheckboxes;
+    void setupSensorControls();
+    void updateVisibleSensors();
 };
 #endif // MAINWINDOW_H

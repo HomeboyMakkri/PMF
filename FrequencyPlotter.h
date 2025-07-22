@@ -3,22 +3,23 @@
 
 
 #include <QtCharts>
+#include <QSet>
 
 class FrequencyPlotter : public QObject {
     Q_OBJECT
 public:
     explicit FrequencyPlotter(QChartView *chartView, QObject *parent = nullptr);
-    void addDataPoint(double x, double y);
+    void addDataPoint(int sensorId, double x, double y);
     void clear();
     void updatePlot();
+    void setVisibleSensors(const QSet<int>& sensors);
 
 private:
     QChart *chart;
-    QLineSeries *series;
+    QMap<int, QLineSeries*> seriesMap;
     QValueAxis *axisX;
     QValueAxis *axisY;
-    const int MAX_POINTS = 100;
-    QList<QPointF> dataPoints;
+    QSet<int> visibleSensors;
 
 };
 

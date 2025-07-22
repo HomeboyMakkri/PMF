@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QPointF>
 #include <QElapsedTimer>
+#include <QMap>
 
 class DataStorage {
 public:
@@ -13,24 +14,26 @@ public:
         return instance;
     }
 
-    void addFrequencyData(double time, double frequency) {
-        frequencyData.append(QPointF(time, frequency));
-        if (frequencyData.size() > MAX_POINTS) {
-            frequencyData.removeFirst();
+    void addFrequencyData(int sensorId, double time, double frequency) {
+        if (!frequencyData.contains(sensorId)) {
+            frequencyData[sensorId] = QVector<QPointF>();
+        }
+
+        frequencyData[sensorId].append(QPointF(time, frequency));
+        if (frequencyData[sensorId].size() > MAX_POINTS) {
+            frequencyData[sensorId].removeFirst();
         }
     }
 
-    void addPulseData(double time, double frequency) {
-        while (frequencyData.size() >= MAX_POINTS) {
-            frequencyData.removeFirst();
-        }
-        frequencyData.append(QPointF(time, frequency));
-        if (frequencyData.size() > MAX_POINTS) {
-            frequencyData.removeFirst();
-        }
+    const QVector<QPointF>& getFrequencyData(int sensorId) const {
+        static QVector<QPointF> empty;
+        auto it = frequencyData.find(sensorId);
+        return (it != frequencyData.end()) ? *it : empty;
     }
 
-    const QVector<QPointF>& getFrequencyData() const { return frequencyData; }
+    void addPulseData(int sensorId, double time, double frequency) {
+        addFrequencyData(sensorId, time, frequency);
+    }
 
     void clear() {
         frequencyData.clear();
@@ -59,7 +62,7 @@ private:
     DataStorage() = default;
     ~DataStorage() = default;
 
-    QVector<QPointF> frequencyData;
+    QMap<int, QVector<QPointF>> frequencyData;
     static const int MAX_POINTS = 100;
     QElapsedTimer timer;
     qint64 lastElapsed = 0; // сохраняем время после остановки
